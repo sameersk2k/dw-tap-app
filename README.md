@@ -1,6 +1,17 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Demonstration application for the Distributed Wind Tools Assessing Performance (DW-TAP) project.
 
-## Available Scripts
+This utilizes Leaflet and React to drive an API for exploring wind data on the US CONUS.
+
+## Requirements
+
+  * NodeJS version 12
+  * NodeJS libraries:
+    * leaflet
+    * react-leaflet
+
+## NodeJS Bootstrapping Boilerplate
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 In the project directory, you can run:
 
@@ -66,3 +77,7 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+## Credit
+
+This software was developed and is maintained by Caleb Phillips (caleb.phillips@nrel.gov)
