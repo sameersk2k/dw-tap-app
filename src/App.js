@@ -5,11 +5,33 @@ import Axios from 'axios';
 import { trackPromise } from 'react-promise-tracker';
 import { usePromiseTracker } from "react-promise-tracker";
 import Loader from 'react-loader-spinner';
+import Plotly from 'plotly.js'
+import _ from 'lodash'
+import L from 'leaflet'
 
 type State = {
   lat: number,
   lng: number,
   zoom: number
+}
+
+function drawPopup(data,marker,popup){
+  console.log(marker)
+  console.log(popup)
+  let div = document.getElementById('plotly');
+  let plot = [{
+    x: _.values(data.timestamp),
+    y: _.values(data.windspeed),
+    type: 'scatter'
+  }];
+  var layout = {
+    autosize: false,
+    width: 800,
+    height: 600,
+    staticPlot: true
+  };
+  console.log(plot)
+  Plotly.newPlot( div, plot, layout);
 }
 
 export class App extends Component<{},State> {
@@ -18,16 +40,17 @@ export class App extends Component<{},State> {
   mapRef = createRef();
 
   updatePosition = () => {
-    console.log(this.refmarker)
-    let marker = this.refmarker.current.leafletElement;
-    let latlng = marker.getLatLng();
+    var marker = this.refmarker.current.leafletElement;
+    var latlng = marker.getLatLng();
     this.state.lat = latlng.lat
     this.state.lng = latlng.lng
     this.mapRef.current.leafletElement.panTo(latlng);
     trackPromise(
         Axios.get('http://localhost:8080/v1/timeseries/windspeed?height=67.00m&lat='+this.state.lat.toString()+'&lon='+this.state.lng.toString()+
             '&start_date=20070302&stop_date=20070402&vertical_interpolation=nearest&spatial_interpolation=idw').then(function(response){
-          marker.setPopupContent("You clicked the map at " + latlng.toString()).openPopup();
+          var popup = L.popup({maxWidth: null}).setContent('<div id="plotly"></div><br/>You clicked the map at ' + latlng.toString());
+          marker.bindPopup(popup).openPopup();
+          drawPopup(response.data,marker,popup)
         }).catch(function(error){
           console.log(error);
         }));
@@ -67,9 +90,6 @@ export class App extends Component<{},State> {
 
 export const LoadingSpinnerComponent = (props) => {
   const { promiseInProgress } = usePromiseTracker();
-  if(promiseInProgress === true){
-    console.log("test")
-  }
   return (
       promiseInProgress &&
       <div style={{
