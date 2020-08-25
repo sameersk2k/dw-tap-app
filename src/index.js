@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import L from 'leaflet'
-import Axios from 'axios'
+import L from 'leaflet';
+import Axios from 'axios';
+import { trackPromise } from 'react-promise-tracker';
+import { usePromiseTracker } from "react-promise-tracker";
+import Loader from 'react-loader-spinner';
 
 var nwtc = [39.9140131,-105.2176275];
 var mymap = L.map('mapid').setView(nwtc, 13);
@@ -31,17 +34,38 @@ marker.on('dragend', function(event){
 
 function createPopup(marker){
     var ll = marker.getLatLng();
-    Axios.get('http://localhost:5000/v1/timeseries/windspeed?height=67.00m&lat='+ll.lat.toString()+'&lon='+ll.lng.toString()+
-        '&start_date=20070302&stop_date=20070402&vertical_interpolation=nearest&spatial_interpolation=idw').then(function(response){
-        marker.setPopupContent("You clicked the map at " + marker.getLatLng().toString()).openPopup();
-    }).catch(function(error){
-        console.log(error);
-    });
+    trackPromise(
+        Axios.get('http://localhost:8080/v1/timeseries/windspeed?height=67.00m&lat='+ll.lat.toString()+'&lon='+ll.lng.toString()+
+            '&start_date=20070302&stop_date=20070402&vertical_interpolation=nearest&spatial_interpolation=idw').then(function(response){
+            marker.setPopupContent("You clicked the map at " + marker.getLatLng().toString()).openPopup();
+        }).catch(function(error){
+            console.log(error);
+        }));
+};
+
+export const LoadingSpinnerComponent = (props) => {
+    const { promiseInProgress } = usePromiseTracker();
+    if(promiseInProgress === true){
+        console.log("test")
+    }
+    return (
+        promiseInProgress &&
+        <div style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            zIndex: "9999",
+            transform: "translate(-50%, -50%)"
+        }}>
+            <Loader type="ThreeDots" color="grey" height="100" width="100" />
+        </div>
+    )
 };
 
 ReactDOM.render(
   <React.StrictMode>
     <App />
+    <LoadingSpinnerComponent />
   </React.StrictMode>,
   document.getElementById('root')
 );
