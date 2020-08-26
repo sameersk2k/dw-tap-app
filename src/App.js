@@ -3,23 +3,53 @@ import './App.css';
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
 import Axios from 'axios';
 import { trackPromise } from 'react-promise-tracker';
-import { usePromiseTracker } from "react-promise-tracker";
-import Loader from 'react-loader-spinner';
 import Plotly from 'plotly.js'
-import _ from 'lodash'
+//import _ from 'lodash'
 import L from 'leaflet'
-
-type State = {
-  lat: number,
-  lng: number,
-  zoom: number
-}
+import LoadingSpinnerComponent from './LoadingSpinnerComponent'
+import SimpleModal from './SimpleModal'
 
 function drawPopup(data,marker,popup){
   console.log(marker)
   console.log(popup)
-  let div = document.getElementById('plotly');
-  let plot = [{
+  var plot = [{
+    r: [77.5, 72.5, 70.0, 45.0, 22.5, 42.5, 40.0, 62.5],
+    theta: ["North", "N-E", "East", "S-E", "South", "S-W", "West", "N-W"],
+    name: "11-14 m/s",
+    marker: {color: "rgb(106,81,163)"},
+    type: "barpolar"
+  }, {
+    r: [57.5, 50.0, 45.0, 35.0, 20.0, 22.5, 37.5, 55.0],
+    theta: ["North", "N-E", "East", "S-E", "South", "S-W", "West", "N-W"],
+    name: "8-11 m/s",
+    marker: {color: "rgb(158,154,200)"},
+    type: "barpolar"
+  }, {
+    r: [40.0, 30.0, 30.0, 35.0, 7.5, 7.5, 32.5, 40.0],
+    theta: ["North", "N-E", "East", "S-E", "South", "S-W", "West", "N-W"],
+    name: "5-8 m/s",
+    marker: {color: "rgb(203,201,226)"},
+    type: "barpolar"
+  }, {
+    r: [20.0, 7.5, 15.0, 22.5, 2.5, 2.5, 12.5, 22.5],
+    theta: ["North", "N-E", "East", "S-E", "South", "S-W", "West", "N-W"],
+    name: "< 5 m/s",
+    marker: {color: "rgb(242,240,247)"},
+    type: "barpolar"
+  }]
+  var layout = {
+    title: "Wind Speed Distribution",
+    font: {size: 12},
+    legend: {font: {size: 10}},
+    polar: {
+      barmode: "overlay",
+      bargap: 0,
+      radialaxis: {ticksuffix: "%", angle: 45, dtick: 20},
+      angularaxis: {direction: "clockwise"}
+    }
+  }
+  Plotly.newPlot("plotly", plot, layout)
+/*  let plot = [{
     x: _.values(data.timestamp),
     y: _.values(data.windspeed),
     type: 'scatter'
@@ -31,10 +61,16 @@ function drawPopup(data,marker,popup){
     staticPlot: true
   };
   console.log(plot)
-  Plotly.newPlot( div, plot, layout);
+  Plotly.newPlot( div, plot, layout);*/
 }
 
-export class App extends Component<{},State> {
+type AppState = {
+  lat: number,
+  lng: number,
+  zoom: number
+}
+
+export class App extends Component<{},AppState> {
 
   refmarker = createRef();
   mapRef = createRef();
@@ -42,13 +78,12 @@ export class App extends Component<{},State> {
   updatePosition = () => {
     var marker = this.refmarker.current.leafletElement;
     var latlng = marker.getLatLng();
-    this.state.lat = latlng.lat
-    this.state.lng = latlng.lng
+    this.setState({lat: latlng.lat, lng: latlng.lng});
     this.mapRef.current.leafletElement.panTo(latlng);
     trackPromise(
         Axios.get('http://localhost:8080/v1/timeseries/windspeed?height=67.00m&lat='+this.state.lat.toString()+'&lon='+this.state.lng.toString()+
             '&start_date=20070302&stop_date=20070402&vertical_interpolation=nearest&spatial_interpolation=idw').then(function(response){
-          var popup = L.popup({maxWidth: null}).setContent('<div id="plotly"></div><br/>You clicked the map at ' + latlng.toString());
+          var popup = L.popup({maxWidth: null}).setContent('You clicked the map at ' + latlng.toString());
           marker.bindPopup(popup).openPopup();
           drawPopup(response.data,marker,popup)
         }).catch(function(error){
@@ -79,27 +114,15 @@ export class App extends Component<{},State> {
             />
             <Marker position={position} draggable='true' onDragend={this.updatePosition} ref={this.refmarker}>
               <Popup>
-                To display the wind resource at a cocation, click somewhere on the map or drag this marker.
+                To display the wind resource at a location, click somewhere on the map or drag this marker.
               </Popup>
             </Marker>
           </Map>
+          <LoadingSpinnerComponent />
+          <SimpleModal />
         </div>
     );
   }
 };
 
-export const LoadingSpinnerComponent = (props) => {
-  const { promiseInProgress } = usePromiseTracker();
-  return (
-      promiseInProgress &&
-      <div style={{
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        zIndex: "9999",
-        transform: "translate(-50%, -50%)"
-      }}>
-        <Loader type="ThreeDots" color="grey" height="100" width="100" />
-      </div>
-  )
-};
+export default App;
