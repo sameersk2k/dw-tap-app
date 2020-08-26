@@ -84,13 +84,14 @@ export class App extends Component<{},AppState> {
     trackPromise(
         Axios.get('http://localhost:8080/v1/timeseries/windspeed?height=67.00m&lat='+this.state.lat.toString()+'&lon='+this.state.lng.toString()+
             '&start_date=20070302&stop_date=20070402&vertical_interpolation=nearest&spatial_interpolation=idw').then(function(response){
-          var popup = L.popup({maxWidth: null}).setContent('You clicked the map at ' + latlng.toString());
+          var popup = L.popup().setContent('You clicked the map at ' + latlng.toString());
           marker.bindPopup(popup).openPopup();
-          this.modalRef.current.openModal();
           drawPopup(response.data,marker,popup)
         }).catch(function(error){
           console.log(error);
-        }));
+        })
+    );
+    this.modalRef.current.handleOpen();
   }
 
   constructor() {
@@ -122,7 +123,7 @@ export class App extends Component<{},AppState> {
             </Marker>
           </Map>
           <LoadingSpinnerComponent />
-          <SimpleModal ref={this.modalRef}/>
+          <SimpleModal ref={this.modalRef} />
         </div>
     );
   }

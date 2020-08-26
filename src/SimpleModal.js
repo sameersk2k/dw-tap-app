@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
@@ -43,14 +42,8 @@ export class SimpleModal extends Component<{},ModalState> {
 
     render() {
         const { classes } = this.props;
-        console.log(classes);
         return (
             <div>
-
-                <Button variant="contained" color="secondary" onClick={this.handleOpen}>
-                    Open Modal
-                </Button>
-
                 <Modal
                     aria-labelledby="transition-modal-title"
                     aria-describedby="transition-modal-description"
@@ -64,9 +57,7 @@ export class SimpleModal extends Component<{},ModalState> {
                     }}
                 >
                     <Fade in={this.state.open}>
-                        <div className={classes.paper} id="plotly">
-                            Nothing to see here
-                        </div>
+                        <div className={classes.paper} id="plotly"></div>
                     </Fade>
                 </Modal>
             </div>
