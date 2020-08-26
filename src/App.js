@@ -72,11 +72,12 @@ type AppState = {
 
 export class App extends Component<{},AppState> {
 
-  refmarker = createRef();
+  markerRef = createRef();
   mapRef = createRef();
+  modalRef = createRef();
 
   updatePosition = () => {
-    var marker = this.refmarker.current.leafletElement;
+    var marker = this.markerRef.current.leafletElement;
     var latlng = marker.getLatLng();
     this.setState({lat: latlng.lat, lng: latlng.lng});
     this.mapRef.current.leafletElement.panTo(latlng);
@@ -85,6 +86,7 @@ export class App extends Component<{},AppState> {
             '&start_date=20070302&stop_date=20070402&vertical_interpolation=nearest&spatial_interpolation=idw').then(function(response){
           var popup = L.popup({maxWidth: null}).setContent('You clicked the map at ' + latlng.toString());
           marker.bindPopup(popup).openPopup();
+          this.modalRef.current.openModal();
           drawPopup(response.data,marker,popup)
         }).catch(function(error){
           console.log(error);
@@ -96,7 +98,8 @@ export class App extends Component<{},AppState> {
     this.state = {
       lat: 39.9140131,
       lng: -105.2176275,
-      zoom: 13
+      zoom: 13,
+      openModal: false
     }
   }
 
@@ -112,14 +115,14 @@ export class App extends Component<{},AppState> {
                 attribution={attribution}
                 url='https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw'
             />
-            <Marker position={position} draggable='true' onDragend={this.updatePosition} ref={this.refmarker}>
+            <Marker position={position} draggable='true' onDragend={this.updatePosition} ref={this.markerRef}>
               <Popup>
                 To display the wind resource at a location, click somewhere on the map or drag this marker.
               </Popup>
             </Marker>
           </Map>
           <LoadingSpinnerComponent />
-          <SimpleModal />
+          <SimpleModal ref={this.modalRef}/>
         </div>
     );
   }
