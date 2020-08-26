@@ -76,6 +76,21 @@ export class App extends Component<{},AppState> {
   mapRef = createRef();
   modalRef = createRef();
 
+  componentDidMount() {
+    window.addEventListener('load', this.handleLoad);
+  }
+
+  handleLoad = () => {
+    var marker = this.markerRef.current.leafletElement;
+    marker.openPopup();
+  }
+
+  handleClick = (e) => {
+    var marker = this.markerRef.current.leafletElement;
+    marker.setLatLng(e.latlng);
+    this.updatePosition();
+  }
+
   updatePosition = () => {
     var marker = this.markerRef.current.leafletElement;
     var latlng = marker.getLatLng();
@@ -111,7 +126,7 @@ export class App extends Component<{},AppState> {
         'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
     return (
         <div className='map-container'>
-          <Map center={position} zoom={this.state.zoom} ref={this.mapRef}>
+          <Map center={position} zoom={this.state.zoom} ref={this.mapRef} onClick={this.handleClick}>
             <TileLayer
                 attribution={attribution}
                 url='https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw'
