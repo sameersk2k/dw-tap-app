@@ -122,6 +122,11 @@ export class ControlsDrawer extends Component<{},DrawerState> {
                             onChange={this.settingsChange}
                         />
                     </form>
+                    <br/><br/>
+                    <div id="disclaimer">
+                        Note: Performance may degrade with increased time between start and stop date. This limitation
+                        will be addressed in a future release.
+                    </div>
                 </div>
             </Drawer>
             </React.Fragment>
