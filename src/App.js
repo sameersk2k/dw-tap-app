@@ -10,13 +10,18 @@ import LoadingSpinnerComponent from './LoadingSpinnerComponent'
 import SimpleModal from './SimpleModal'
 import ControlsDrawer from "./ControlsDrawer";
 
+// global function so that it can be seen within the promise and axios request
+// (there may be a better way to do this)
 function drawPopup(data,marker,popup){
+  // note: all these zipWith commands are getting the data in a form ready for plotting, which means
+  // cumulatively summing each windspeed class so that they appear to 'stack' in the plot, and then
+  // scaling the entire stack by the proportion of observations in each direction
   var plot = [{
     r: _.zipWith(_.zipWith(data[">20 m/s"],data["10-20 m/s"],data["5-10 m/s"],data["<5 m/s"],function(a,b,c,d) {
-        return a + b + c + d;
-      }),data["Any"],function(a,b) {
+      return a + b + c + d;
+    }),data["Any"],function(a,b) {
       return a * (b / 100.0);
-      }),
+    }),
     theta: ["North", "N-E", "East", "S-E", "South", "S-W", "West", "N-W"],
     name: "> 20 m/s",
     marker: {color: "rgb(106,81,163)"},
@@ -72,6 +77,17 @@ type AppState = {
 
 export class App extends Component<{},AppState> {
 
+  constructor() {
+    super();
+    this.state = {
+      lat: 39.9140131,
+      lng: -105.2176275,
+      zoom: 13,
+      openModal: false,
+      openDrawer: false
+    }
+  }
+
   markerRef = createRef();
   mapRef = createRef();
   modalRef = createRef();
@@ -97,9 +113,10 @@ export class App extends Component<{},AppState> {
     var latlng = marker.getLatLng();
     this.setState({lat: latlng.lat, lng: latlng.lng});
     this.mapRef.current.leafletElement.panTo(latlng);
+    var url = this.drawerRef.current.prepareRequest(this.state.lat.toString(),this.state.lng.toString());
+
     trackPromise(
-        Axios.get('http://localhost:8080/v1/windrose?height=67.00m&lat='+this.state.lat.toString()+'&lon='+this.state.lng.toString()+
-            '&start_date=20070101&stop_date=20070301&vertical_interpolation=nearest&spatial_interpolation=idw').then(function(response){
+        Axios.get(url).then(function(response){
           var popup = L.popup().setContent('You clicked the map at ' + latlng.toString());
           marker.bindPopup(popup).openPopup();
           drawPopup(response.data,marker,popup)
@@ -108,17 +125,6 @@ export class App extends Component<{},AppState> {
         })
     );
     this.modalRef.current.handleOpen();
-  }
-
-  constructor() {
-    super();
-    this.state = {
-      lat: 39.9140131,
-      lng: -105.2176275,
-      zoom: 13,
-      openModal: false,
-      openDrawer: false
-    }
   }
 
   render() {
