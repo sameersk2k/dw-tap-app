@@ -8,6 +8,7 @@ import _ from 'lodash'
 import L from 'leaflet'
 import LoadingSpinnerComponent from './LoadingSpinnerComponent'
 import SimpleModal from './SimpleModal'
+import ControlsDrawer from "./ControlsDrawer";
 
 function drawPopup(data,marker,popup){
   var plot = [{
@@ -74,6 +75,7 @@ export class App extends Component<{},AppState> {
   markerRef = createRef();
   mapRef = createRef();
   modalRef = createRef();
+  drawerRef = createRef();
 
   componentDidMount() {
     window.addEventListener('load', this.handleLoad);
@@ -114,7 +116,8 @@ export class App extends Component<{},AppState> {
       lat: 39.9140131,
       lng: -105.2176275,
       zoom: 13,
-      openModal: false
+      openModal: false,
+      openDrawer: false
     }
   }
 
@@ -124,6 +127,7 @@ export class App extends Component<{},AppState> {
         '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
         'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
     return (
+
         <div className='map-container'>
           <Map center={position} zoom={this.state.zoom} ref={this.mapRef} onClick={this.handleClick}>
             <TileLayer
@@ -136,6 +140,7 @@ export class App extends Component<{},AppState> {
               </Popup>
             </Marker>
           </Map>
+          <ControlsDrawer ref={this.drawerRef} />
           <LoadingSpinnerComponent />
           <SimpleModal ref={this.modalRef} />
         </div>

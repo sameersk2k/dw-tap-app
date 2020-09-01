@@ -24,3 +24,19 @@ code {
   width: 600px;
   height: 400px;
 }
+
+#controls{
+
+  padding: 20px;
+}
+
+#fab{
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 9999
+}
+
+#vertinterp-label, #spatinterp-label{
+  font-size: 10pt;
+}
