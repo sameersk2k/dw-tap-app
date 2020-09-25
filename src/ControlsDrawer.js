@@ -31,7 +31,7 @@ export class ControlsDrawer extends Component<{},DrawerState> {
     };
 
     prepareRequest = (lat,lng) => {
-        return 'http://localhost:8080/v1/windrose?height='+this.state.height+'m&lat='+lat+'&lon='+lng+
+        return 'http://dw-tap.nrel.gov/v1/windrose?height='+this.state.height+'m&lat='+lat+'&lon='+lng+
             '&start_date='+_.join(_.split(this.state.startdate,'-',3),'')+'&stop_date='+
             _.join(_.split(this.state.stopdate,'-',3),'')+
             '&vertical_interpolation='+this.state.vertinterp+
